@@ -37,7 +37,7 @@ retrieval-augmented generation.
 ---
 
 ## Project structure
-
+```
 garden-auntie/
 ├── data/docs/          # your source documents (PDFs, txt)
 ├── src/
@@ -47,6 +47,7 @@ garden-auntie/
 ├── chroma_db/          # vector database (auto-generated, not committed)
 ├── .env                # API keys (not committed)
 └── requirements.txt
+```
 
 ---
 
@@ -64,7 +65,7 @@ pip install -r requirements.txt
 **2. Add your API key**
 
 Create a `.env` file:
-OPENAI_API_KEY=your_key_here
+`OPENAI_API_KEY=your_key_here`
 
 **3. Add documents**
 

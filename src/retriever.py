@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import Chroma
-from langchain.schema import SystemMessage, HumanMessage
+from langchain.schema import AIMessage, SystemMessage, HumanMessage
 
 load_dotenv()
 
@@ -19,7 +19,12 @@ SYSTEM_PROMPT = """Ти — Garden Auntie, дружня та знаюча пом
 {context}"""
 
 
-def get_answer(question: str, k: int = 4) -> dict:
+def get_answer(question: str, history: list = None,k: int = 4) -> dict:
+    # history is a list of {"role": "user"/"assistant", "content": "..."} dicts
+    # passed in from Streamlit's session_state — same format it already stores
+    if history is None:
+        history = []
+
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
     vectorstore = Chroma(
         persist_directory=CHROMA_PATH,
@@ -34,10 +39,17 @@ def get_answer(question: str, k: int = 4) -> dict:
 
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
 
-    messages = [
-        SystemMessage(content=SYSTEM_PROMPT.format(context=context)),
-        HumanMessage(content=question),
-    ]
+    # Build message list: system prompt first, then full conversation history,
+    # then the new question. The LLM sees the whole conversation in order.
+    messages = [SystemMessage(content=SYSTEM_PROMPT.format(context=context))]
+
+    for msg in history:
+        if msg["role"] == "user":
+            messages.append(HumanMessage(content=msg["content"]))
+        elif msg["role"] == "assistant":
+            messages.append(AIMessage(content=msg["content"]))
+
+    messages.append(HumanMessage(content=question))
 
     response = llm.invoke(messages)
 
@@ -51,6 +63,7 @@ if __name__ == "__main__":
     print("Garden Auntie — тестовий режим")
     print("Введи 'вихід' щоб завершити\n")
 
+    history = []
     while True:
         question = input("Твоє питання: ").strip()
         if question.lower() in ("вихід", "exit", "quit"):
@@ -62,3 +75,6 @@ if __name__ == "__main__":
         print(f"\nВідповідь:\n{result['answer']}")
         print(f"\nДжерела: {', '.join(result['sources'])}\n")
         print("-" * 50)
+
+        history.append({"role": "user", "content": question})
+        history.append({"role": "assistant", "content": result["answer"]})

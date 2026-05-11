@@ -119,3 +119,6 @@ chroma_db/
 # OS
 .DS_Store
 Thumbs.db
+
+# Data docs with specific information
+data/docs/

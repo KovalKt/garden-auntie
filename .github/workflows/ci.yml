@@ -1,0 +1,46 @@
+name: CI
+
+# Run this pipeline on every push to main and every pull request
+on:
+  push:
+    branches: [main, 'v**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # Set up the Python version matching your local environment
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      # Cache pip packages so the pipeline runs faster on repeat runs
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      # Install dependencies
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Check code formatting with ruff (fast, modern Python linter)
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check src/
+
+      # Basic smoke test — imports work, no syntax errors
+      - name: Smoke test
+        run: python -c "from src.retriever import get_answer; print('Import OK')"
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

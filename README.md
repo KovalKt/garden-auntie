@@ -22,6 +22,16 @@ retrieval-augmented generation.
 - Works with PDFs and plain text files — drop new docs in and re-run
   the ingest script
 
+### v1.0.0 branch — Zhytomyr knowledge base
+
+- This branch includes a committed local vector database (the chroma_db folder) 
+  populated with documents oriented to the Zhytomyr region. It's provided for 
+  convenience so the app can be demoed without re-running ingestion.
+- Intended use: quick demo and regional testing only — the committed DB may be 
+  out of date for other regions. If you want a clean build, switch to main 
+  (or remove chroma_db and re-run python src/ingest.py).
+- Live demo: preview the app on Railway at https://garden-auntie-production.up.railway.app/
+
 ---
 
 ## Tech stack

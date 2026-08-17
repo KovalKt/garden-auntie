@@ -1,9 +1,9 @@
 import sys
 import os
+import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import streamlit as st
 from src.retriever import get_answer
 
 
@@ -42,7 +42,7 @@ if "messages" not in st.session_state:
 
 # Render all previous messages from history
 for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
+    with st.chat_message(msg["role"], avatar=msg.get("avatar")):
         st.markdown(msg["content"])
         # Re-render source pills if this was an assistant message
         if msg["role"] == "assistant" and msg.get("sources"):
@@ -58,14 +58,14 @@ for msg in st.session_state.messages:
 if question := st.chat_input("Запитай мене про садівництво..."):
 
     # Show the user's message immediately in the chat
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar="🤔"):
         st.markdown(question)
 
     # Save it to history
-    st.session_state.messages.append({"role": "user", "content": question})
+    st.session_state.messages.append({"role": "user", "avatar": "🤔", "content": question})
 
     # Get answer from RAG pipeline, show a spinner while waiting
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar="👩🏻‍🌾"):
         with st.spinner("Думаю..."):
             result = get_answer(question, history=st.session_state.messages)
 
@@ -86,6 +86,7 @@ if question := st.chat_input("Запитай мене про садівницт�
     # Save assistant response + sources to history
     st.session_state.messages.append({
         "role": "assistant",
+        "avatar": "👩🏻‍🌾",
         "content": answer,
         "sources": sources,
     })

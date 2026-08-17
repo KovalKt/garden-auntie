@@ -110,7 +110,7 @@ dmypy.json
 .pyre/
 
 # RAG-specific
-chroma_db/
+# chroma_db/
 
 # IDEs
 .vscode/
